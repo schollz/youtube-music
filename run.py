@@ -84,11 +84,11 @@ Get an OAUTH token and click "TRY IT". Then copy all the stuff after "Bearer "
     for track in trackList:
         print(track)
         urls.append(getURL(track))
-    # try:
-    #     os.mkdir(directory)
-    # except:
-    #     pass
-    # os.chdir(directory)
-    # p = multiprocessing.Pool(multiprocessing.cpu_count())
-    # p.map(downloadURL,urls)
+    try:
+        os.mkdir(directory)
+    except:
+        pass
+    os.chdir(directory)
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
+    p.map(downloadURL,urls)
     print("%d songs downloaded to %s." % (len(urls),directory))

@@ -110,6 +110,6 @@ To download a Spotify playlist:
             print("Directory '%s' already exists, exiting." % directory)
             sys.exit(-1)
     os.chdir(directory)
-    # p = multiprocessing.Pool(multiprocessing.cpu_count())
-    # p.map(downloadURL,urls)
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
+    p.map(downloadURL, urls)
     print("%d songs downloaded to %s." % (len(urls), directory))

@@ -1,7 +1,7 @@
-# youtube-music
-Convert a playlist to a set of MP3s
+```
+youtube-music - Convert a playlist to a set of MP3s
 
-## Installation
+Installation
 
 1. Install ffmpeg
 
@@ -18,3 +18,4 @@ Convert a playlist to a set of MP3s
 3. Run it and find the option that suits you
 
     python3 run.py
+```

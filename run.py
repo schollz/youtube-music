@@ -16,7 +16,13 @@ def spotify(user,playlist,oauth):
     trackList = []
     for item in a['items']:
         trackList.append(item['track']['artists'][0]['name'] + " - " + item['track']['album']['name'] + " - " + item['track']['name'])
-    return trackList
+
+    url = 'https://api.spotify.com/v1/users/'+user+'/playlists/'+playlist
+    headers = {'Authorization':'Bearer ' + oauth}
+    r = requests.get(url,headers=headers)
+    a = r.json()
+    directory = a['name'] + ' - ' + a['id']
+    return trackList, directory
 
 
 def getURL(searchString):
@@ -27,7 +33,7 @@ def getURL(searchString):
         if 'title' in video.attrib and 'href' in video.attrib:
             if 'doubleclick' in video.attrib['href']:
                 continue
-            print(video.attrib['title'])
+            print("Found URL for '%s' with title '%s'." % (searchString,video.attrib['title']))
             return "https://www.youtube.com"+ video.attrib['href']
     return ""
 
@@ -42,8 +48,7 @@ if __name__ == '__main__':
     urls = []
     directory = "default"
     if len(sys.argv) > 3:
-        trackList = spotify(sys.argv[1],sys.argv[2],sys.argv[3])
-        directory = sys.argv[2]
+        trackList, directory = spotify(sys.argv[1],sys.argv[2],sys.argv[3])
     elif len(sys.argv)==1:
         print("""
 USAGE:
@@ -75,13 +80,15 @@ Get an OAUTH token and click "TRY IT". Then copy all the stuff after "Bearer "
         print("?")
         sys.exit(1)
 
+    print("Tracklist to use:")
     for track in trackList:
+        print(track)
         urls.append(getURL(track))
-    try:
-        os.mkdir(directory)
-    except:
-        pass
-    os.chdir(directory)
-    p = multiprocessing.Pool(multiprocessing.cpu_count())
-    p.map(downloadURL,urls)
+    # try:
+    #     os.mkdir(directory)
+    # except:
+    #     pass
+    # os.chdir(directory)
+    # p = multiprocessing.Pool(multiprocessing.cpu_count())
+    # p.map(downloadURL,urls)
     print("%d songs downloaded to %s." % (len(urls),directory))

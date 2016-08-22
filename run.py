@@ -7,6 +7,8 @@ import requests
 import json
 import multiprocessing
 
+programSuffix = ""
+
 
 def spotify(user, playlist, oauth):
     url = 'https://api.spotify.com/v1/users/' + \
@@ -53,9 +55,14 @@ def getURL(searchString):
 def downloadURL(url):
     if len(url) == 0:
         return
-    os.system("youtube-dl -x --audio-quality 2 --audio-format mp3 " + url)
+    os.system("youtube-dl%s -x --audio-quality 2 --audio-format mp3 %s" %
+              (programSuffix, url))
 
 if __name__ == '__main__':
+    is_windows = sys.platform.startswith('win')
+    if is_windows:
+        programSuffix = ".exe"
+
     trackList = []
     urls = []
     directory = "default"
@@ -97,10 +104,12 @@ To download a Spotify playlist:
         print("?")
         sys.exit(1)
 
-    print("Tracklist to use:")
-    for track in trackList:
-        print(track)
-        urls.append(getURL(track))
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
+    urls = p.map(getURL, trackList)
+    print("\nTracklist to use:")
+    for i in range(len(trackList)):
+        print(trackList[i], urls[i])
+
     try:
         os.mkdir(directory)
     except:

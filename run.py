@@ -7,7 +7,6 @@ import requests
 import json
 import multiprocessing
 
-
 def spotify(user,playlist,oauth):
     url = 'https://api.spotify.com/v1/users/'+user+'/playlists/'+playlist+'/tracks'
     headers = {'Authorization':'Bearer ' + oauth}
@@ -28,13 +27,21 @@ def spotify(user,playlist,oauth):
 def getURL(searchString):
     page = requests.get("https://www.youtube.com/results?search_query=" + urllib.parse.quote_plus(searchString))
     tree = html.fromstring(page.content)
-    videos = tree.xpath('//a[contains(@href, "/watch")]')
+    videos = tree.xpath('//h3[@class="yt-lockup-title "]')
     for video in videos:
-        if 'title' in video.attrib and 'href' in video.attrib:
-            if 'doubleclick' in video.attrib['href']:
+        title = video.xpath('./a[contains(@href, "/watch")]')[0].attrib['title']
+        url = "https://www.youtube.com"+ video.xpath('./a[contains(@href, "/watch")]')[0].attrib['href']
+        try:
+            minutes = int(video.xpath('./span[@class="accessible-description"]/text()')[0].split(':')[1].strip())
+            if minutes > 12:
                 continue
-            print("Found URL for '%s' with title '%s'." % (searchString,video.attrib['title']))
-            return "https://www.youtube.com"+ video.attrib['href']
+        except:
+            pass
+
+        if 'doubleclick' in title or 'list=' in url or 'album review' in title.lower():
+            continue
+        print("'%s' = '%s' @ %s " % (searchString,title, url))
+        return url
     return ""
 
 
@@ -89,6 +96,6 @@ Get an OAUTH token and click "TRY IT". Then copy all the stuff after "Bearer "
     except:
         pass
     os.chdir(directory)
-    p = multiprocessing.Pool(multiprocessing.cpu_count())
-    p.map(downloadURL,urls)
+    # p = multiprocessing.Pool(multiprocessing.cpu_count())
+    # p.map(downloadURL,urls)
     print("%d songs downloaded to %s." % (len(urls),directory))

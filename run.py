@@ -49,9 +49,10 @@ def getURL(searchString):
         title = videoData[0].attrib['title']
         url = "https://www.youtube.com" + videoData[0].attrib['href']
         try:
-            minutes = int(video.xpath(
-                './span[@class="accessible-description"]/text()')[0].split(':')[1].strip())
-            if minutes > 12:
+            timeText = video.xpath(
+                './span[@class="accessible-description"]/text()')[0]
+            minutes = int(timeText.split(':')[1].strip())
+            if minutes > 12 or timeText.count(":") == 3:
                 continue
         except:
             pass
@@ -116,6 +117,10 @@ To download a Spotify playlist:
 
     p = multiprocessing.Pool(multiprocessing.cpu_count())
     urls = p.map(getURL, trackList)
+    if urls[0] == '':
+        print("No songs found.")
+        sys.exit(1)
+
     print("\nTracklist to use:")
     for i in range(len(trackList)):
         print(trackList[i], urls[i])

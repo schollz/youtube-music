@@ -17,6 +17,13 @@ def spotify(user, playlist, oauth):
     r = requests.get(url, headers=headers)
     a = r.json()
     trackList = []
+    if 'items' not in a:
+        print("""
+    To get the OAUTH, goto
+    https://developer.spotify.com/web-api/console/get-playlist-tracks/#complete
+    Get an OAUTH token and click "TRY IT". Then copy all the stuff after "Bearer "
+""")
+        sys.exit(-1)
     for item in a['items']:
         trackList.append(item['track']['artists'][0][
                          'name'] + " - " + item['track']['album']['name'] + " - " + item['track']['name'])
@@ -34,10 +41,13 @@ def getURL(searchString):
     tree = html.fromstring(page.content)
     videos = tree.xpath('//h3[@class="yt-lockup-title "]')
     for video in videos:
-        title = video.xpath(
-            './a[contains(@href, "/watch")]')[0].attrib['title']
-        url = "https://www.youtube.com" + \
-            video.xpath('./a[contains(@href, "/watch")]')[0].attrib['href']
+        videoData = video.xpath('./a[contains(@href, "/watch")]')
+        if len(videoData) == 0:
+            continue
+        if 'title' not in videoData[0].attrib or 'href' not in videoData[0].attrib:
+            continue
+        title = videoData[0].attrib['title']
+        url = "https://www.youtube.com" + videoData[0].attrib['href']
         try:
             minutes = int(video.xpath(
                 './span[@class="accessible-description"]/text()')[0].split(':')[1].strip())

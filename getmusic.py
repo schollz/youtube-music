@@ -37,8 +37,9 @@ def spotify(user, playlist, oauth):
 
 
 def getURL(searchString):
-    page = requests.get("https://www.youtube.com/results?search_query=" +
-                        urllib.parse.quote_plus(searchString))
+    urlToGet = "https://www.youtube.com/results?search_query=" + urllib.parse.quote_plus(searchString)
+    print("Getting %s" % urlToGet)
+    page = requests.get(urlToGet)
     tree = html.fromstring(page.content)
     videos = tree.xpath('//h3[@class="yt-lockup-title "]')
     for video in videos:
@@ -49,6 +50,9 @@ def getURL(searchString):
             continue
         title = videoData[0].attrib['title']
         url = "https://www.youtube.com" + videoData[0].attrib['href']
+        if 'googleads' in url:
+            continue
+        print("Found url '%s'" % url)
         try:
             timeText = video.xpath(
                 './span[@class="accessible-description"]/text()')[0]

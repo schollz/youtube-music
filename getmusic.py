@@ -7,8 +7,78 @@ import urllib
 import requests
 import json
 import multiprocessing
+import random
 
 programSuffix = ""
+
+def getRecommendations(searchString):
+    print("Getting recommendations for %s" % searchString)
+    # Process initial search
+    data = {}
+    dataTuples = getYoutubeRecommendations(getURL(searchString))
+    urls, data = processTuples(dataTuples,data)
+
+    # Search all the recommendations for more
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
+    dataTuples = []
+    for datTuple in p.map(getYoutubeRecommendations, urls):
+        dataTuples += datTuple
+    urls, data = processTuples(dataTuples,data)
+
+    # Add one URL for each artist
+    urls = []
+    for artist in data:
+        song = random.choice(list(data[artist].keys()))
+        url = data[artist][song]
+        print("Adding %s" % song)
+        urls.append(url)
+
+    return urls
+
+def processTuples(dats,data):
+    urls = []
+    for dat in dats:
+        try:
+            artist = dat[0].split('-')[0].replace(' ','').lower()
+            if artist not in data:
+                data[artist] = {}
+            if dat[1] < 300000:
+                data[artist][dat[0]] = dat[2]
+                urls.append(dat[2])
+        except:
+            pass
+    return urls, data
+  
+def getYoutubeRecommendations(url):
+    page = requests.get(url)
+    tree = html.fromstring(page.content)
+    videos = tree.xpath('//div[@class="watch-sidebar-body"]/ul/li/div')
+    urls = []
+    for video in videos:
+        videoData = video.xpath('./a')
+        if len(videoData) == 0:
+            continue
+        if 'href' not in videoData[0].attrib:
+            continue
+        nextURL = "https://www.youtube.com" + videoData[0].attrib['href']
+        videoData2 = videoData[0].xpath('./span[@class="title"]')
+        if len(videoData2) == 0:
+            continue
+        nextTitle = videoData2[0].text_content().strip()
+        if " - " not in nextTitle:
+            continue
+        videoData2 = videoData[0].xpath('./span[@class="stat view-count"]')
+        if len(videoData2) == 0:
+            continue
+        viewCount = videoData2[0].text_content().strip().replace('views','').replace(',','').replace(' ','')
+        views = 0
+        try:
+            views = int(viewCount)
+        except:
+            continue
+        urls.append((nextTitle,views,nextURL))
+        print(nextTitle,views,nextURL)
+    return urls
 
 
 def spotify(user, playlist, oauth):
@@ -115,20 +185,26 @@ To download a Spotify playlist:
             for line in f:
                 trackList.append(line.strip())
     elif len(sys.argv) == 2:
-        trackList.append(sys.argv[1])
+        var = input("Do you want recommendations (y/n)? ")
+        if 'y' in var:
+            urls = getRecommendations(sys.argv[1])
+            directory = sys.argv[1].replace(" ","-")
+        else:
+            print("Downloading " + sys.argv[1])
+            trackList.append(sys.argv[1])
     else:
         print("?")
         sys.exit(1)
 
     p = multiprocessing.Pool(multiprocessing.cpu_count())
-    urls = p.map(getURL, trackList)
-    if urls[0] == '':
-        print("No songs found.")
-        sys.exit(1)
-
-    print("\nTracklist to use:")
-    for i in range(len(trackList)):
-        print(trackList[i], urls[i])
+    if len(urls) == 0:
+        urls = p.map(getURL, trackList)
+        if urls[0] == '':
+            print("No songs found.")
+            sys.exit(1)
+        print("\nTracklist to use:")
+        for i in range(len(trackList)):
+            print(trackList[i], urls[i])
 
     try:
         os.mkdir(directory)

@@ -11,11 +11,13 @@ Installation
 
 2. Install youtube-dl
 
-    git clone https://github.com/rg3/youtube-dl.git
-    cd youtube-dl
-    sudo python setup.py install
+    pip install --upgrade youtube_dl
 
 3. Run it and find the option that suits you
 
-    python3 run.py
+    ./getmusic.py
+
+
+
+Make sure to keep youtube-dl up-to-date!
 ```

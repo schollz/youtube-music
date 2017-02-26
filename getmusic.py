@@ -88,11 +88,11 @@ if __name__ == '__main__':
         print("""
 To download a single track:
 
-    $ python3 run.py "Led Zepplin - Stairway to Heaven"
+    $ ./getmusic.py "Led Zepplin - Stairway to Heaven"
 
 To download a txt-file playlist:
 
-    $ python3 run.py Zepplin.txt
+    $ ./getmusic.py Zepplin.txt
 
     Make the file, 'Zepplin.txt' that contains a list of artist/track names.
     Songs will be stored in 'Zepplin' folder.
@@ -100,7 +100,7 @@ To download a txt-file playlist:
 
 To download a Spotify playlist:
 
-    $ python3 run.py USER-ID PLAYLIST-ID OAUTH
+    $ ./getmusic.py USER-ID PLAYLIST-ID OAUTH
 
     Go into Spotify, find your playlist and copy the USER-ID and PLAYLIST-ID
     To get the OAUTH, goto

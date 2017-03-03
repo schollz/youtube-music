@@ -69,7 +69,7 @@ def getTracks(searchTrack):
 
     print(youtubeLinks)
     newDir = '-'.join(searchTrack.split())
-    print("Saving tracks to %s" % newDir)
+    
     try:
         os.mkdir(newDir)
     except:
@@ -77,6 +77,8 @@ def getTracks(searchTrack):
     os.chdir(newDir)
     p = multiprocessing.Pool(multiprocessing.cpu_count())
     p.map(downloadURL, youtubeLinks)
+
+    print("%d tracks saved to %s" % (len(youtubeLinks),newDir))
 
 if __name__ == '__main__':
     is_windows = sys.platform.startswith('win')

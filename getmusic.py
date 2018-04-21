@@ -91,7 +91,7 @@ def spotify(user, playlist, oauth):
     if 'items' not in a:
         print("""
     To get the OAUTH, goto
-    https://developer.spotify.com/web-api/console/get-playlist-tracks/#complete
+    https://beta.developer.spotify.com/console/get-playlist-tracks/
     Get an OAUTH token and click "TRY IT". Then copy all the stuff after "Bearer "
 """)
         sys.exit(-1)
